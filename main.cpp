@@ -1,131 +1,118 @@
-/*
-   This program will create a decision tree for an animal
-   guessing game.
-
-   
-   Pseudocode has been added as a hint to help with developing this
-   program
-*/
-
 #include <iostream>
-#include <fstream>
 #include <string>
-#include "binary_tree.h"
+#include <queue>
 
-Binary_tree read(istream& in)
-{
-//   Note the stream is called in
-//
-//    declare data as string
-//    declare level as integer
-//    get level from stream
-//    get line from stream and assign it to data
-//    if level == -1
-//        return Binary_tree();
-//
-//    declare left as a Binary_tree and assign it read(in) 
-//      Note:  it is a recursive call
-//
-//    declare right as a Binary_tree and assign it to read(in)
-//      Note:  it is a recursive call
-//
-//    return Binary_tree(data, left, right)
+struct animalNode {
+    std::string question;
+    std::string guess;
+    animalNode* yesAnswer;
+    animalNode* noAnswer;
+};
+
+void printPreorder(struct animalNode* node){
+    if (node == NULL)
+        return;
+  
+    std::cout << node->question << " " << node->guess << "\n";
+    printPreorder(node->yesAnswer);
+    printPreorder(node->noAnswer);
 }
 
-void write(ostream& out, const Binary_tree& tree, int level)
-{
-//    if tree.empty()
-//        output -1 + \n to out
-//        return 
-//    output level + ' ' + tree.data() + \n to out
-//    call write (out, tree.left(), level + 1)
-//    call write (out, tree.right(), level + 1)
-}
+int main(){
+    bool flag = true;
+    std::queue< animalNode* > q0;
 
-/*
- * helper function that will help with definite or indefinite 
- * articles in a string
- */
-std::string article(const std::string& entry)
-{
-    std::string article = "a";
-    if (std::string("aeiou").find(entry[0]) != std::string::npos)
-    {
-        article =  "an";
+    animalNode* cNode = new animalNode();
+    cNode->guess = "mammual";
+    cNode->yesAnswer = nullptr;
+    cNode->noAnswer = nullptr;
+    q0.push(cNode);
+
+    std::string question;
+    std::string input;
+    std::string otherAnimal0;
+    std::string otherAnimal1;
+
+    std::cout << "Let's play the 'Guess the Animal' game.\n";
+  
+    animalNode* curNode = nullptr;
+    animalNode* head = nullptr;
+    head = cNode;
+  
+    curNode = cNode;
+
+    while (flag) {
+        if ((curNode->yesAnswer == nullptr) & (curNode->noAnswer == nullptr)) {
+            std::cout << " Is it a(n) " << curNode->guess << "\n";
+            getline(std::cin, input);
+            if ((input == "y") |(input == "yes") ) {
+                std::cout << " Good ! I guessed your animal\n";
+            }
+            else {
+                otherAnimal0 = curNode->guess;
+                std::cout << "What is your animal?\n";
+                getline(std::cin, otherAnimal1);
+                std::cout << "What is a yes/no question that I can use to tell a " << otherAnimal0 << " from a " << otherAnimal1 << "\n";
+                getline(std::cin, question);
+                animalNode* newAnimal1 = new animalNode();
+                animalNode* newAnimal0 = new animalNode();
+                newAnimal0->guess = otherAnimal0;
+                newAnimal0->noAnswer = nullptr;
+                newAnimal0->yesAnswer = nullptr;
+                newAnimal1->guess = otherAnimal1;
+                newAnimal1->noAnswer = nullptr;
+                newAnimal1->yesAnswer = nullptr;
+                curNode->guess.clear();
+                curNode->question = question;
+              
+                q0.push(newAnimal0);
+                q0.push(newAnimal1);
+
+                std::cout << "For " << otherAnimal1 << " Is the answer yes or no? \n";
+                getline(std::cin, input);
+                if (input == "yes") {
+                    curNode->yesAnswer = newAnimal1;
+                    curNode->noAnswer = newAnimal0;
+                }
+                else {
+                    curNode->yesAnswer = newAnimal0;
+                    curNode->noAnswer = newAnimal1;
+                }
+            }
+
+            std::cout << "Try again?\n";
+            getline(std::cin, input);
+
+            if ((input == "y" ) | (input == "yes")) {
+                curNode = head;
+                continue;
+            }
+            else {
+                break;
+            }
+        }
+        else {
+            std::cout << curNode->question << "\n";
+            getline(std::cin, input);
+            if ((input == "y") | (input == "yes")) {
+                curNode = curNode->yesAnswer;
+                continue;
+            }
+            if ((input == "n") | (input == "no")) {
+                curNode = curNode->noAnswer;
+                continue;
+            }
+        }
     }
-    return article;
+
+    std::cout << "Preoder Output of the tree built : \n";
+    printPreorder(head);
+
+    while (!q0.empty()) {
+        cNode = q0.front();
+        q0.pop();
+        delete cNode;
+    }
 }
-
-int main(int argc,char **argv)
-{
-    Binary_tree root;  
-    // Strategy
-    //  get the filename from the command line arguments
-    //  open the file stream
-    //  initialize the root Binary_tree variable with data from the 
-    //  file stream to initialize the decision tree root by calling
-    //  the read function
-    //
-
-    // declare a Binary_tree question_tree and set it to root
-    // while not done
-    //    declare a string called response
-    //    declare a Binary_tree called left and set it to 
-    //       question_tree.left()
-    //
-    //    declare a Binary_tree called right and set it to 
-    //       question_tree.right()
-    //
-    //    if left.empty() and right.empty()
-            // Add code here that will carry on something like the 
-            // following dialog:
-            //
-            //  Is it a mammal? Y  
-            //  Does it have stripes? N  
-            //  Is it a pig? N  
-
-            // get the response from the user and 
-            // if it is correct,
-            //     print  "I guessed it!"
-            // else
-            //    print "I give up. What is it?"
-            //    if user enters A hamster  
-            //    then
-            //        print "Please give me a question that is true 
-            //                  for a hamster and false for a pig."
-            //        get the response from the user
-            //             example user response: Is it small and cuddly?  
-            //
-            //        Insert a node into question_tree so that this 
-            //        question is used in future dialogs:
-            //
-            // One strategy to consider is to implement a set method 
-            //   in the Binary_tree called root
-            //   the set method will set the data and the left and right 
-            //   subtrees for the given root
-            //
-            //  Future dialog:
-            //     print "May I try again? "
-            //     get response
-            //     if response is yes
-            //         done = true
-            //     else
-            //         question_tree = root
-      //  else
-      //      do
-      //        print Is it a question_tree.data()  (y/n): 
-      //        get response
-      //      while (response != y and response != n)
-
-      //      if response is y
-      //         question_tree = left;
-      //      else
-      //         question_tree = right;
-
-    // When done, write the decision tree to the data file by calling
-    // the write function so that the new
-    // question and answer is added to the data file
-}
-
 
 
